@@ -1,0 +1,8 @@
+[project]
+name = "exercise-assembly"
+version = "0.1.0"
+description = "De novo genome assembly: de Bruijn graph, Hierholzer's algorithm, contigs"
+requires-python = ">=3.11"
+dependencies = [
+    "biopython>=1.88",
+]
