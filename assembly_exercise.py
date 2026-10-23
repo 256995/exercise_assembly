@@ -175,10 +175,52 @@ def spell_path(nodes):
     return path
 
 
+def hierholzer(graph, start, verbose=False):
+    unused_edges = copy.deepcopy(graph)
+    for edge in unused_edges:
+        unused_edges[edge].sort(reverse=True) # sort decreasingly
+    final_walk = [] # the final walk through all edges
+    node = start # the node I am in at the moment
+    walk = [node]  # the active walk
+    all_walks = [] # list of all walks
+    all_splices = []
+    while True:
+        if unused_edges[node]: # there are unused edges from this node
+            node = unused_edges[node].pop() # remove and return the lask index, tj. alphabeticaly the first
+            walk.append(node)
+            # mark the edge used
+        else: # stuck
+            all_walks.append(walk)
+            if final_walk: # replace the first occurance of node by the walk
+                i = final_walk.index(node)
+                final_walk[i:i+1] = walk
+            else:
+                final_walk = walk
+            all_splices.append(final_walk.copy())
+            if not any(unused_edges.values()): # the algorithm is finished
+                break
+            for vertex in final_walk:
+                if unused_edges[vertex]:
+                    node = vertex
+                    break
+            walk = [node]
+
+    if verbose:
+        return final_walk, all_walks, all_splices
+    else:
+        return final_walk
+
+
 if __name__ == "__main__":
     de_graph = debruijn_graph(['ACT', 'AGA', 'CAG', 'CCA', 'CTG', 'GAA', 'GAC', 'GGT', 'GTC', 'TCC', 'TGA'])
     print(de_graph)
     print(spell_path(["GAT", "ATT", "TTA"]))
     print(spell_path(['GG', 'GT', 'TC', 'CC', 'CA', 'AG', 'GA', 'AC', 'CT', 'TG', 'GA', 'AA']))
+
+    # Hierholzer's algotihm
+    de_graph1 = debruijn_graph(['ACT', 'AGC', 'ATT', 'CCG', 'CGA', 'CGT', 'CTG', 'GAC', 'GAG', 'GAT', 'GTC', 'TCC', 'TCG', 'TGA', 'TTC'])
+    print(eulerian_type(de_graph1, directed=True))
+    print(hierholzer(de_graph1, 'GA', verbose=True))
+
 
 
