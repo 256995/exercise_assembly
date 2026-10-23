@@ -1,6 +1,9 @@
 from collections import Counter
 import copy
 
+from PRG.exercise_regex.regex_exercise import results
+
+
 def build_adjacency_list(edges, directed=False):
     """
     Creates the adjacency list of directed or undirected graph
@@ -123,7 +126,7 @@ def eulerian_type(graph, directed=False):
                 result = 'circuit'
             elif (deg_plus == 1) and (deg_minus == 1):
                 result = 'path'
-            print(in_deg, out_deg)
+            # print(in_deg, out_deg)
     else: # undirected
         if len(connected_components(graph)) == 1:
             degrees_dict = degrees(graph)
@@ -135,7 +138,7 @@ def eulerian_type(graph, directed=False):
                 result = 'circuit'
             elif odd_deg == 2:
                 result = 'path'
-            print(degrees_dict, odd_deg)
+            # print(degrees_dict, odd_deg)
     return result
 
 
@@ -211,6 +214,31 @@ def hierholzer(graph, start, verbose=False):
         return final_walk
 
 
+def eulerian_path(graph, verbose=False):
+    # find the starting node
+    start = ''
+    graph_type = eulerian_type(graph, directed=True)
+    if graph_type == 'circuit':
+        start = min(graph)
+    elif graph_type == 'path':
+        in_deg, out_deg = in_out_degree(graph)
+        for node in graph:
+            if out_deg[node] > in_deg[node]:
+                start = node
+    else:
+        print('The Eulerian path nor circuit do not exist.')
+        return 1
+
+    # get the eulerian path
+    if verbose:
+        path, all_paths, all_splices = hierholzer(graph, start, verbose)
+        result = (spell_path(path), all_paths, all_splices)
+    else:
+        path = hierholzer(graph, start, verbose)
+        result = spell_path(path)
+
+    return result
+
 if __name__ == "__main__":
     de_graph = debruijn_graph(['ACT', 'AGA', 'CAG', 'CCA', 'CTG', 'GAA', 'GAC', 'GGT', 'GTC', 'TCC', 'TGA'])
     print(de_graph)
@@ -221,6 +249,4 @@ if __name__ == "__main__":
     de_graph1 = debruijn_graph(['ACT', 'AGC', 'ATT', 'CCG', 'CGA', 'CGT', 'CTG', 'GAC', 'GAG', 'GAT', 'GTC', 'TCC', 'TCG', 'TGA', 'TTC'])
     print(eulerian_type(de_graph1, directed=True))
     print(hierholzer(de_graph1, 'GA', verbose=True))
-
-
-
+    print(eulerian_path(de_graph1), len(eulerian_path(de_graph1)))
